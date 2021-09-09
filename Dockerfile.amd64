@@ -28,8 +28,10 @@ RUN clean-install \
   nfs-common \
   socat \
   udev \
-  util-linux
+  util-linux \
+  sed
 
+COPY ./iscsiadm /bin/iscsiadm
 COPY --from=fetcher /kubernetes/node/bin/kubelet /usr/local/bin/kubelet
 COPY --from=fetcher /kubernetes/node/bin/kubectl /usr/local/bin/kubectl
 ENTRYPOINT ["/usr/local/bin/kubelet"]
