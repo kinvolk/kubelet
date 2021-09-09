@@ -35,3 +35,29 @@ Kubelet also requires:
 ### kubectl
 
 `kubectl` (no dependencies) is also included for convenience (e.g. use pre-pulled Kubelet image to `kubectl delete node` on preemption).
+
+## Build Image
+
+You can use `make image-arm64` or `make image-amd64` to create images. However this requires `buildah` to be installed.
+
+Alternate build instructions if you don't have `buildah` installed:
+
+```
+export IMAGE_URL= quay.io/kinvolk/kubelet:v1.21.4
+
+export ARCH=amd64
+docker buildx build --load -t $IMAGE_URL-$ARCH -f Dockerfile.$ARCH --platform linux/$ARCH .
+
+export ARCH=arm64
+docker buildx build --load -t $IMAGE_URL-$ARCH -f Dockerfile.$ARCH --platform linux/$ARCH .
+```
+
+To create, annotate and publish manifests:
+```
+docker manifest create $IMAGE_URL --amend $IMAGE_URL-amd64 --amend $IMAGE_URL-arm64
+
+docker manifest annotate $IMAGE_URL $IMAGE_URL-amd64 --arch=amd64 --os=linux
+docker manifest annotate $IMAGE_URL $IMAGE_URL-arm64 --arch=arm64 --os=linux
+
+docker manifest push $IMAGE_URL
+```
